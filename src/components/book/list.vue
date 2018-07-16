@@ -40,7 +40,7 @@
                 <el-table-column prop="publishAt" label="出版日期" width="150" sortable></el-table-column>
                 <el-table-column label="操作" width="150">
                     <template slot-scope="scope">
-                        <el-button>编辑</el-button>
+                        <el-button @click="showEditDialog(scope.$index,scope.row)">编辑</el-button>
                         <el-button type="danger">删除</el-button>
                     </template>
                 </el-table-column>
@@ -51,15 +51,15 @@
                 <el-pagination layout="prev, pager, next" :page-size="10" :total="total" background style="float:right;" @current-change="handleCurrentChange"></el-pagination>
             </el-col>
             <!-- 新增界面 -->
-            <el-dialog title="新增" :visible.sync='addFormVisible' :close-on-click-modal='false'>
-                <el-form :modal="addForm" label-width="80px" :rules="addFormRules" ref="addForm"> 
+            <el-dialog title="新增" :visible.sync="addFormVisible" :close-on-click-modal="false">
+                <el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm"> 
                     <el-form-item label="书名" prop="name">
-                        <el-input v-model="addForm.name"></el-input>
+                        <el-input v-model="addForm.name" auto-complete="off"></el-input>
                     </el-form-item>
                     <el-form-item label="作者" prop="author">
-                        <el-input v-model="addForm.author"></el-input>
+                        <el-input v-model="addForm.author" auto-complete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="出版日期" prop="publishAt">
+                    <el-form-item label="出版日期">
                         <el-date-picker type="date" placeholder="选择日期" v-model="addForm.publishAt"></el-date-picker>
                     </el-form-item>
                     <el-form-item label="简介" prop="description">
@@ -71,12 +71,17 @@
                     <el-button type="primary" @click.native="addSubmit" :loading="addLoading">提交</el-button>
                 </div>
             </el-dialog>
+            <!-- 编辑界面 -->
+            <el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
+
+            </el-dialog>
         </el-col>
     </el-row>
 </template>
 
 <script>
 import API from '../../api/api_book.js'
+import util from '../../common/utils.js'
     export default {
         data() {
             return {
@@ -89,8 +94,15 @@ import API from '../../api/api_book.js'
                 page: 1,
                 sels: [], // 被选中的图书数组
                 addLoading: false,
-                addFormVisible: true,
+                addFormVisible: false,
+                editFormVisible: false,
                 addForm: {
+                    name: '',
+                    author: '',
+                    publishAt: '',
+                    description: ''
+                },
+                editForm: {
                     name: '',
                     author: '',
                     publishAt: '',
@@ -102,9 +114,6 @@ import API from '../../api/api_book.js'
                     ],
                     author: [
                         {required: true, message: '请输入作者', trigger: 'blur'}
-                    ],
-                    publishAt: [
-                        {required: true, message: '请输入日期', trigger: 'change'}
                     ],
                     description: [
                         {required: true, message: '请输入简介', trigger: 'blur'}
@@ -141,7 +150,17 @@ import API from '../../api/api_book.js'
                 });
             },
             showAddDialog() {
-
+                this.addFormVisible = true;
+                this.addForm = {
+                    name: '',
+                    author: '',
+                    publishAt: '',
+                    description: ''
+                }
+            },
+            showEditDialog(index,row) {
+                this.editFormVisible = true;
+                this.editForm = Object.assign({},row);
             },
             handleCurrentChange(val) {
                 this.page = val;
@@ -175,7 +194,31 @@ import API from '../../api/api_book.js'
             },
             // 新增图书
             addSubmit() {
-
+                let that = this;
+                this.$refs.addForm.validate((valid) => {
+                    if (valid) {
+                        that.loading = true;
+                        let para = Object.assign({},that.addForm);
+                        para.publishAt = (!para.publishAt || para.publishAt == '') ? '' : util.formatDate.format(new Date(para.publishAt),'yyyy-MM-dd');
+                        API.add(para).then(function (result) {
+                            that.loading = false;
+                            if (result && parseInt(result.errcode) === 0) {
+                                that.$message.success({showClose: true, message: '新增成功', duration: 2000});
+                                that.$refs.addForm.resetFields();
+                                that.addFormVisible = false;
+                                that.search();
+                            }else{
+                                that.$message.error({showClose: true, message: '新增失败',duration: 2000});
+                            }
+                        }, function (err) {
+                            that.loading = false;
+                            that.$message.error({showClose: true, message: err.toString(), duration: 2000});
+                        }).catch(function () {
+                            that.loading = false;
+                            that.$message.error({showClose:true, message: '请求出现异常', duration: 2000})
+                        })
+                    }
+                });
             }
         },
         mounted() {

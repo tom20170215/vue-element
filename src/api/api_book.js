@@ -9,6 +9,9 @@ export default {
   // 批量删除，传数组
   removeBatch: ids => {
     return API.DELETE(`/api/v1/books/batch/${ids}`)
+  },
+  add: params => {
+    return API.POST(`/api/v1/books`, params)
   }
 
 }
