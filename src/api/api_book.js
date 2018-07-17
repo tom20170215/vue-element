@@ -12,6 +12,12 @@ export default {
   },
   add: params => {
     return API.POST(`/api/v1/books`, params)
+  },
+  update: (id, params) => {
+    return API.PUT(`/api/v1/books/${id}`, params)
+  },
+  remove: id => {
+    return API.DELETE(`/api/v1/books/${id}`)
   }
 
 }

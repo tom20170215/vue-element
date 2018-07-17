@@ -41,7 +41,7 @@
                 <el-table-column label="操作" width="150">
                     <template slot-scope="scope">
                         <el-button @click="showEditDialog(scope.$index,scope.row)">编辑</el-button>
-                        <el-button type="danger">删除</el-button>
+                        <el-button type="danger" @click.native="delBook(scope.$index, scope.row)">删除</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -73,7 +73,24 @@
             </el-dialog>
             <!-- 编辑界面 -->
             <el-dialog title="编辑" :visible.sync="editFormVisible" :close-on-click-modal="false">
-
+                <el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
+                    <el-form-item label="书名" prop="name">
+                        <el-input v-model="editForm.name" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="作者" prop="author">
+                        <el-input v-model="editForm.author" auto-complete="off"></el-input>
+                    </el-form-item>
+                    <el-form-item label="出版日期">
+                        <el-date-picker type="date" placeholder="选择日期" v-model="editForm.publishAt"></el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="简介" prop="description">
+                        <el-input type="textarea" :rows="8" v-model="editForm.description"></el-input>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click.native="editFormVisible = false">取消</el-button>
+                    <el-button type="primary" @click.native="editSubmit">提交</el-button>
+                </div>
             </el-dialog>
         </el-col>
     </el-row>
@@ -109,6 +126,17 @@ import util from '../../common/utils.js'
                     description: ''
                 },
                 addFormRules: {
+                    name: [
+                        {required: true, message: '请输入书名', trigger: 'blur'}
+                    ],
+                    author: [
+                        {required: true, message: '请输入作者', trigger: 'blur'}
+                    ],
+                    description: [
+                        {required: true, message: '请输入简介', trigger: 'blur'}
+                    ]
+                },
+                editFormRules: {
                     name: [
                         {required: true, message: '请输入书名', trigger: 'blur'}
                     ],
@@ -219,6 +247,58 @@ import util from '../../common/utils.js'
                         })
                     }
                 });
+            },
+            // 编辑图书
+            editSubmit() {
+                let that = this;
+                this.$refs.editForm.validate((valid) => {
+                    if (valid) {
+                        that.loading = true;
+                        let para = Object.assign({},that.editForm);
+                        para.publishAt = (!para.publishAt || para.publishAt == '') ? '' : util.formatDate.format(new Date(para.publishAt),'yyyy-MM-dd');
+                        API.update(para.id, para).then(function (result) {
+                            that.loading = false;
+                            if (result && parseInt(result.errcode) == 0) {
+                                that.$message.success({showClose: true, message: '修改成功', duration: 2000});
+                                that.$refs['editForm'].resetFields();
+                                that.editFormVisible = false;
+                                that.search();
+                            }else{
+                                that.$message.error({showClose: true, message: '修改失败', duration: 2000})
+                            }
+                        },function (err) {
+                            that.loading = false;
+                            that.$message.error({showClose: true, message: err.toString(), duration: 2000});
+                        }).catch(function (error) {
+                            that.loading = false;
+                            that.$message.error({showClose: true, message: '请求异常', duration: 2000});
+                        });
+                    }
+                })
+            },
+            // 删除图书
+            delBook(index,row) {
+                let that = this;
+                this.$confirm('确认删除该记录吗？', '提示', {
+                    type: 'warning'
+                }).then(() => {
+                    that.loading = true;
+                    API.remove(row.id).then((result) => {
+                        that.loading = false;
+                        if (result && result.errcode === 0) {
+                            that.$message.success({showClose: true, message: '删除成功', duration: 2000});
+                            that.search();
+                        }else{
+                            that.$message.error({showClose: true, message: '删除失败', duration: 2000})
+                        }
+                    }, error => {
+                        that.loading = false;
+                        that.$message.error({showClose: true, message: error.toString(), duration: 2000});
+                    }).catch(err => {
+                        that.loading = false;
+                        that.$message.error({showClose: true, message: '请求出现异常', duration: 2000})
+                    })
+                })
             }
         },
         mounted() {
@@ -227,6 +307,9 @@ import util from '../../common/utils.js'
     }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss" >
+    .el-form-item__label{
+        font-weight: bold;
+    }
 </style>
 
