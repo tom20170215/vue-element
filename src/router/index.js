@@ -5,6 +5,8 @@ import Dashboard from '@/components/Dashboard'
 import UserList from '@/components/user/list'
 import BookList from '@/components/book/list'
 import BookCategoryList from '@/components/bookcategory/list'
+import Profile from '@/components/user/profile'
+import Changepwd from '@/components/user/changepwd'
 
 // 懒加载方式，当路由被访问时才加载对应组件
 const Login = resolve => require(['@/components/Login'], resolve)
@@ -56,6 +58,20 @@ let router = new Router({
         },
         {
           path: '/book/category', component: BookCategoryList, name: '图书分类', menuShow: true
+        }
+      ]
+    }, {
+      path: '/',
+      name: '设置',
+      component: Home,
+      menuShow: true,
+      iconCls: 'iconfont icon-setting1',
+      children: [
+        {
+          path: '/user/profile', component: Profile, name: '个人信息', menuShow: true
+        },
+        {
+          path: '/user/changepwd', component: Changepwd, name: '修改密码', menuShow: true
         }
       ]
     }

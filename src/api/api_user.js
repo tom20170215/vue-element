@@ -12,5 +12,9 @@ export default {
   // 获取查询user列表
   findList: params => {
     return API.GET('/api/v1/users', params)
+  },
+  // 更改信息
+  changeProfile: params => {
+    return API.PATCH('/api/v1/users/profile', params)
   }
 }
