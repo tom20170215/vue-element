@@ -1,6 +1,6 @@
 <template>
     <el-row>
-        <el-col :span="24">
+        <el-col :span="24" class="wrap-breadcrumb">
             <el-breadcrumb separator-class="el-icon-arrow-right">
               <el-breadcrumb-item :to="{ path: '/'}"><b>首页</b></el-breadcrumb-item>
             </el-breadcrumb>

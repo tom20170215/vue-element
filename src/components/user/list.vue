@@ -2,7 +2,7 @@
     <el-row class="wrap">
         <el-col :span="24" class="wrap-breadcrumb">
             <el-breadcrumb separator="/">
-                <el-breadcrumb-item :to="{path:'/'}"><b>首页</b></el-breadcrumb-item>
+                <el-breadcrumb-item :to="{path:'/'}" @click.native="bus"><b>首页</b></el-breadcrumb-item>
                 <el-breadcrumb-item>用户列表</el-breadcrumb-item>
             </el-breadcrumb>
         </el-col>
@@ -35,6 +35,7 @@
 
 <script>
 import API from "../../api/api_user";
+import BUS from '../../bus'
 export default {
   data() {
     return {
@@ -49,6 +50,9 @@ export default {
     };
   },
   methods: {
+    bus() {
+      BUS.$emit('backIndex', '/dashboard')
+    },
     // 性别显示转换
     formatSex(row, column) {
       return row.sex == 1 ? "男" : row.sex == 0 ? "女" : "未知";

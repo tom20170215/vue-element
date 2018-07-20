@@ -2,7 +2,7 @@
     <el-row>
         <el-col :span="24">
             <el-breadcrumb separator="/" class="wrap-breadcrumb">
-                <el-breadcrumb-item :to="{path:'/'}"><b>首页</b></el-breadcrumb-item>
+                <el-breadcrumb-item :to="{path:'/'}" @click.native="bus"><b>首页</b></el-breadcrumb-item>
                 <el-breadcrumb-item>图书管理</el-breadcrumb-item>
                 <el-breadcrumb-item>图书列表</el-breadcrumb-item>
             </el-breadcrumb>
@@ -99,6 +99,7 @@
 <script>
 import API from '../../api/api_book.js'
 import util from '../../common/utils.js'
+import BUS from '../../bus.js'
     export default {
         data() {
             return {
@@ -150,6 +151,9 @@ import util from '../../common/utils.js'
             }
         },
         methods: {
+            bus() {
+                BUS.$emit('backIndex','/dashboard')
+            },
             handleSearch() {
                 this.total = 0;
                 this.page = 1;

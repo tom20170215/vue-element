@@ -4,7 +4,7 @@ import Bus from '../bus.js'
 // 跨站点访问控制请求
 axios.defaults.withCredentials = true
 
-// 添加一个相应拦截器
+// 添加一个响应拦截器
 axios.interceptors.response.use(function (response) {
   if (response.data && response.data.errcode) {
     if (parseInt(response.data.errcode) === 40001) {

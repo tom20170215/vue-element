@@ -2,15 +2,15 @@
     <el-row>
         <el-col :span="24" class="wrap-breadcrumb" v-loading='loading'>
             <el-breadcrumb>
-                <el-breadcrumb-item :to="{path: '/'}"><b>首页</b></el-breadcrumb-item>
+                <el-breadcrumb-item :to="{path: '/'}" @click.native='bus'><b>首页</b></el-breadcrumb-item>
                 <el-breadcrumb-item>设置</el-breadcrumb-item>
                 <el-breadcrumb-item>个人信息</el-breadcrumb-item>
             </el-breadcrumb>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="24">
             <el-form :model="form" ref="form" label-width="80px" :rules="rules">
                 <el-form-item label="账号">
-                    <el-input v-model="form.account" disabled></el-input>
+                    <el-input v-model="form.username" disabled></el-input>
                 </el-form-item>
                 <el-form-item label="昵称" prop="nickname">
                     <el-input v-model="form.nickname"></el-input>
@@ -36,7 +36,7 @@
         data() {
             return {
                 form: {
-                    account: '',
+                    username: '',
                     nickname: '',
                     name: '',
                     email: ''
@@ -87,8 +87,21 @@
                         });
                     }
                 })
+            },
+            bus() {
+                BUS.$emit('backIndex', '/dashboard')
             }
-        }   
+        },
+        mounted() {
+            let user = localStorage.getItem('access-user');
+            if (user) {
+                user = JSON.parse(user);
+                this.form.username = user.username;
+                this.form.nickname = user.nickname;
+                this.form.name = user.name;
+                this.form.email = user.email;
+            }
+        } 
     }
 </script>
 
